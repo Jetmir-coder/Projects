@@ -11,6 +11,9 @@ Wunsch deine Zeit) gegen und sortiert danach.
 Preise kommen von der amtlichen [E-Control](https://www.spritpreisrechner.at)
 Datenbank für Österreich. Kein API-Schlüssel, kein Konto, keine Kosten.
 
+> Wo die Arbeit gerade steht und was als Nächstes zu tun ist, steht in
+> [UEBERGABE.md](UEBERGABE.md).
+
 ---
 
 ## Schnellstart
@@ -18,7 +21,7 @@ Datenbank für Österreich. Kein API-Schlüssel, kein Konto, keine Kosten.
 Voraussetzung: Node 20 oder neuer, dazu die App **Expo Go** auf deinem Handy
 (App Store bzw. Play Store, gratis, kein Konto nötig).
 
-```powershell
+```
 npm install
 npx expo start
 ```
@@ -29,11 +32,28 @@ Rechner und Handy müssen im selben WLAN sein.
 Handy nicht im selben Netz? Dann `npx expo start --tunnel` — langsamer, geht
 aber über Mobilfunk.
 
+Verlangt Expo beim Start eine Anmeldung? Dann `npx expo start --offline`. Damit
+entfällt die Kontoprüfung, und es läuft auch, wenn der Rechner gerade kein
+Internet hat.
+
 ### Ohne Internet ausprobieren
 
-```powershell
-$env:EXPO_PUBLIC_MOCK=1 ; npx expo start
+In der Eingabeaufforderung (cmd, das Fenster zeigt `C:\...>`):
+
 ```
+set EXPO_PUBLIC_MOCK=1
+npx expo start
+```
+
+In PowerShell (Fenster zeigt `PS C:\...>`):
+
+```powershell
+$env:EXPO_PUBLIC_MOCK = '1'
+npx expo start
+```
+
+Wieder abschalten: `set EXPO_PUBLIC_MOCK=` bzw.
+`Remove-Item Env:\EXPO_PUBLIC_MOCK` — oder einfach ein neues Fenster öffnen.
 
 Dann kommen die Preise aus einer gespeicherten Beispielantwort
 (`src/fixtures/econtrol-wien.json`) statt von E-Control, und der Standort ist
@@ -147,7 +167,7 @@ Diese App wurde ohne Zugriff auf die echte E-Control-Schnittstelle gebaut — da
 Antwortformat ist aus der Dokumentation abgeleitet, nicht gemessen. Falls also
 etwas fehlt oder leer bleibt:
 
-```powershell
+```
 npm run probe
 ```
 
@@ -189,7 +209,7 @@ unabhängig davon installieren:
 Node 24 sollte laufen. Falls der Bundler doch Probleme macht, ist Node 22 der
 besser abgehangene Weg:
 
-```powershell
+```
 winget install CoreyButler.NVMforWindows
 nvm install 22
 nvm use 22
