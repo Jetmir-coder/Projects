@@ -1,0 +1,7 @@
+# Zeilenenden vereinheitlichen (Windows schreibt CRLF, Git speichert LF).
+* text=auto eol=lf
+
+# Binärdateien nicht anfassen.
+*.png binary
+*.jpg binary
+*.ttf binary

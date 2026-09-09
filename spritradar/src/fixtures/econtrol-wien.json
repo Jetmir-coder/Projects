@@ -1,0 +1,572 @@
+[
+  {
+    "id": 1000,
+    "name": "Turmöl Triester Straße",
+    "brand": "Turmöl",
+    "location": {
+      "address": "Triester Straße 62",
+      "postalCode": "1100",
+      "city": "Wien",
+      "latitude": 48.1712,
+      "longitude": 16.3532
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": true
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.429,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.539,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      },
+      {
+        "amount": 0.999,
+        "fuelType": "GAS",
+        "label": "Autogas"
+      }
+    ],
+    "lastUpdate": "2026-09-09T19:04:18.863Z"
+  },
+  {
+    "id": 1001,
+    "name": "Shell Wienerbergstraße",
+    "brand": "Shell",
+    "location": {
+      "address": "Wienerbergstraße 11",
+      "postalCode": "1100",
+      "city": "Wien",
+      "latitude": 48.1745,
+      "longitude": 16.3611
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.519,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.629,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:57:18.863Z"
+  },
+  {
+    "id": 1002,
+    "name": "BP Favoritenstraße",
+    "brand": "BP",
+    "location": {
+      "address": "Favoritenstraße 210",
+      "postalCode": "1100",
+      "city": "Wien",
+      "latitude": 48.1668,
+      "longitude": 16.3775
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.499,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.609,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:50:18.863Z"
+  },
+  {
+    "id": 1003,
+    "name": "Eni Landstraßer Hauptstraße",
+    "brand": "Eni",
+    "location": {
+      "address": "Landstraßer Hauptstraße 146",
+      "postalCode": "1030",
+      "city": "Wien",
+      "latitude": 48.1937,
+      "longitude": 16.3959
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.549,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.649,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:43:18.863Z"
+  },
+  {
+    "id": 1004,
+    "name": "Doppler Gudrunstraße",
+    "brand": "Doppler",
+    "location": {
+      "address": "Gudrunstraße 145",
+      "postalCode": "1100",
+      "city": "Wien",
+      "latitude": 48.1758,
+      "longitude": 16.3742
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": true
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.459,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.559,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:36:18.863Z"
+  },
+  {
+    "id": 1005,
+    "name": "Jet Simmeringer Hauptstraße",
+    "brand": "Jet",
+    "location": {
+      "address": "Simmeringer Hauptstraße 101",
+      "postalCode": "1110",
+      "city": "Wien",
+      "latitude": 48.1721,
+      "longitude": 16.4184
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.444,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.554,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      },
+      {
+        "amount": 0.999,
+        "fuelType": "GAS",
+        "label": "Autogas"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:29:18.863Z"
+  },
+  {
+    "id": 1006,
+    "name": "OMV Margaretengürtel",
+    "brand": "OMV",
+    "location": {
+      "address": "Margaretengürtel 122",
+      "postalCode": "1050",
+      "city": "Wien",
+      "latitude": 48.1839,
+      "longitude": 16.3474
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.559,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.669,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:22:18.863Z"
+  },
+  {
+    "id": 1007,
+    "name": "Turmöl Laxenburger Straße",
+    "brand": "Turmöl",
+    "location": {
+      "address": "Laxenburger Straße 244",
+      "postalCode": "1230",
+      "city": "Wien",
+      "latitude": 48.1498,
+      "longitude": 16.3661
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.419,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.529,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:15:18.863Z"
+  },
+  {
+    "id": 1008,
+    "name": "Avanti Altmannsdorfer Straße",
+    "brand": "Avanti",
+    "location": {
+      "address": "Altmannsdorfer Straße 91",
+      "postalCode": "1120",
+      "city": "Wien",
+      "latitude": 48.1612,
+      "longitude": 16.3298
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": true
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.469,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.579,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:08:18.863Z"
+  },
+  {
+    "id": 1009,
+    "name": "Turmöl Brünner Straße",
+    "brand": "Turmöl",
+    "location": {
+      "address": "Brünner Straße 68",
+      "postalCode": "1210",
+      "city": "Wien",
+      "latitude": 48.2687,
+      "longitude": 16.3908
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.409,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.519,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T18:01:18.863Z"
+  },
+  {
+    "id": 1010,
+    "name": "OMV Hütteldorfer Straße",
+    "brand": "OMV",
+    "location": {
+      "address": "Hütteldorfer Straße 240",
+      "postalCode": "1140",
+      "city": "Wien",
+      "latitude": 48.2001,
+      "longitude": 16.2874
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.539,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.649,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      },
+      {
+        "amount": 0.999,
+        "fuelType": "GAS",
+        "label": "Autogas"
+      }
+    ],
+    "lastUpdate": "2026-09-09T17:54:18.863Z"
+  },
+  {
+    "id": 1011,
+    "name": "BP Praterstern",
+    "brand": "BP",
+    "location": {
+      "address": "Lassallestraße 3",
+      "postalCode": "1020",
+      "city": "Wien",
+      "latitude": 48.2179,
+      "longitude": 16.3919
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.579,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.689,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T17:47:18.863Z"
+  },
+  {
+    "id": 1012,
+    "name": "Eni Handelskai",
+    "brand": "Eni",
+    "location": {
+      "address": "Handelskai 265",
+      "postalCode": "1020",
+      "city": "Wien",
+      "latitude": 48.2278,
+      "longitude": 16.4055
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": true
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.489,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.599,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T17:40:18.863Z"
+  },
+  {
+    "id": 1013,
+    "name": "Shell Gürtel Gumpendorf",
+    "brand": "Shell",
+    "location": {
+      "address": "Gumpendorfer Gürtel 8",
+      "postalCode": "1060",
+      "city": "Wien",
+      "latitude": 48.1902,
+      "longitude": 16.3395
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.529,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.639,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T17:33:18.863Z"
+  },
+  {
+    "id": 1014,
+    "name": "Doppler Erdberger Lände",
+    "brand": "Doppler",
+    "location": {
+      "address": "Erdberger Lände 36",
+      "postalCode": "1030",
+      "city": "Wien",
+      "latitude": 48.1985,
+      "longitude": 16.4102
+    },
+    "contact": {
+      "telephone": null,
+      "mail": null,
+      "website": null
+    },
+    "offerInformation": {
+      "service": false,
+      "selfService": true,
+      "unattended": false
+    },
+    "openingHours": [],
+    "open": true,
+    "prices": [
+      {
+        "amount": 1.454,
+        "fuelType": "DIE",
+        "label": "Diesel"
+      },
+      {
+        "amount": 1.564,
+        "fuelType": "SUP",
+        "label": "Super 95"
+      }
+    ],
+    "lastUpdate": "2026-09-09T17:26:18.863Z"
+  }
+]
