@@ -3,7 +3,7 @@
 Dieses Dokument sagt, **wo wir stehen und was als Nächstes dran ist**.
 Wie die App funktioniert, steht im [README](README.md).
 
-Stand: 9. September 2026 · Commit `42ebdf4`
+Stand: 17. September 2026
 
 ---
 
@@ -33,27 +33,72 @@ Nutzer, nicht am Code.
 | | |
 | --- | --- |
 | Repository | `Jetmir-coder/Projects` |
-| Branch | `claude/spritpreise-vergleich-app-bn8tyt` |
-| Pull Request | #1 — **offen, nicht gemergt** |
+| Branch | `main` |
+| Pull Request | #1 — **gemergt**, App liegt jetzt auf `main` |
 | Ordner | `spritradar/` |
 
-> **Achtung, das hat schon einmal Zeit gekostet:** Auf `main` liegt nur der
-> Ordner `Questions`. Die App gibt es dort **nicht**. Wer `main` auscheckt,
-> sieht kein `spritradar/` und denkt, das Klonen sei schiefgegangen.
-
-Richtig klonen:
-
-```
-git clone -b claude/spritpreise-vergleich-app-bn8tyt https://github.com/Jetmir-coder/Projects.git
-```
-
-Schon geklont und auf dem falschen Branch:
+> **Veraltet, aber falls noch alte Klone rumliegen:** Früher lag die App nur
+> auf dem Branch `claude/spritpreise-vergleich-app-bn8tyt`, und auf `main` gab
+> es nur den Ordner `Questions`. Das ist vorbei — PR #1 ist gemergt, `main`
+> hat jetzt alles. Einfach normal klonen bzw. auf `main` wechseln:
 
 ```
-git checkout claude/spritpreise-vergleich-app-bn8tyt
+git clone https://github.com/Jetmir-coder/Projects.git
 ```
 
-Solange PR #1 offen ist, bleibt das so. Nach dem Mergen liegt alles auf `main`.
+Schon geklont und auf einem alten Branch:
+
+```
+git checkout main && git pull
+```
+
+---
+
+## Handy ohne Terminal — die Web-Version
+
+Bisher lief die App nur über `npx expo start` + Expo Go: Der PC musste laufen,
+der Terminal offen bleiben, beides im selben WLAN. Schließt man den Terminal,
+ist die App am Handy weg.
+
+Dafür gibt es jetzt eine zweite, unabhängige Variante: Die App als Webseite
+bauen und dauerhaft hosten (z. B. auf Vercel, kostenlos). Ergebnis: eine feste
+`https://…`-Adresse, die immer erreichbar ist — PC und Terminal werden dafür
+nie mehr gebraucht.
+
+**Bauen:**
+
+```
+cd spritradar
+npm run build:web
+```
+
+Das erzeugt `spritradar/dist/` — eine fertige, statische Webseite (kein
+Server nötig). `vercel.json` im Projekt sagt Vercel, wie gebaut wird
+(`npm run build:web`, Ausgabe in `dist/`).
+
+**Auf dem Handy einrichten (einmalig), nachdem die Seite gehostet ist:**
+
+1. Die Deploy-Adresse im Handy-Browser öffnen (Safari auf iPhone, Chrome auf
+   Android).
+2. "Zum Home-Bildschirm hinzufügen" wählen.
+3. Es erscheint ein eigenes App-Icon (SpritRadar-Logo). Antippen startet die
+   App ohne Browser-Leiste, wie eine echte App — und ohne dass irgendwo ein
+   Terminal läuft.
+
+**Noch ungetestet, unbedingt nach dem ersten echten Deploy prüfen:** Ob die
+Tankstellen-Preise (E-Control) und die Routenberechnung (OSRM) im Browser
+laden. Die App ruft diese beiden APIs direkt vom Gerät aus auf
+(`src/api/econtrol.ts`, `src/api/osrm.ts`). Am Handy in der nativen App ist
+das nie ein Problem, im Browser kann es an CORS scheitern (Browser blockieren
+Anfragen an fremde Server ohne passende Freigabe-Header). Das ließ sich beim
+Bauen dieser Änderung nicht direkt testen — dazu bräuchte es einen echten
+Deploy. Falls nach dem Deploy Tankstellen oder Preise nicht laden (Konsole im
+Browser zeigt dann eine CORS-Fehlermeldung): eine kleine Server-Funktion
+(z. B. Vercel Serverless Function) einbauen, die als Vermittler zwischen
+Browser und den beiden APIs sitzt.
+
+Die alte Variante über Expo Go bleibt daneben bestehen und eignet sich weiter
+gut zum schnellen Testen während der Entwicklung.
 
 ---
 
