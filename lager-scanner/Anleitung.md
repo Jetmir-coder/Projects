@@ -59,12 +59,33 @@ With({stk: Value(txtAnzahl.Text) * Switch(ddEinheit.Selected.Value,
    `If(varMat.Lagerstand + stk < 0, Notify("Zu wenig Bestand", NotificationType.Error), …)`
 9. **Datei → Speichern → Veröffentlichen.** Auf dem Handy die **Power Apps** App (Play Store, Arbeitsprofil) öffnen → App "Lager" starten → Kamera erlauben.
 
-## Teil 3: Palette wechselt
-Zweiter Bildschirm "Platz belegen": `scan` → Stellplatz, Textfeld neue SAP →
+## Teil 3: Umlagern (z.B. Palette von 124 nach 70)
+Neuer Bildschirm "Umlagern" mit zwei Barcode-Lesern `scanVon` und `scanNach` und Knopf `btnUmlagern`.
+- `scanVon.OnScan`: `Set(varVon, LookUp(tblStellplatz, Stellplatz = Value(scanVon.Value)))`
+- `scanNach.OnScan`: `Set(varNach, LookUp(tblStellplatz, Stellplatz = Value(scanNach.Value)))`
+- Labels zeigen: `"Von " & varVon.Stellplatz & ": " & varVon.SAP` und `"Nach " & varNach.Stellplatz & ": " & Coalesce(varNach.SAP, "leer")`
+- `btnUmlagern.OnSelect`:
 ```
-Patch(tblStellplatz, LookUp(tblStellplatz, Stellplatz = varPlatz), {SAP: txtNeueSAP.Text})
+If(IsBlank(varVon.SAP), Notify("Quellplatz ist leer", NotificationType.Error),
+ If(!IsBlank(varNach.SAP), Notify("Zielplatz ist belegt!", NotificationType.Error),
+  Patch(tblStellplatz, varNach, {SAP: varVon.SAP});
+  Patch(tblStellplatz, varVon, {SAP: ""});
+  Patch(tblProtokoll, Defaults(tblProtokoll), {
+     Zeit: Now(), Stellplatz: varNach.Stellplatz, SAP: varVon.SAP,
+     Aktion: "Umlagerung " & varVon.Stellplatz & " -> " & varNach.Stellplatz,
+     Einheit: "Palette", Anzahl: 1, Stueck: 0, NeuerBestand: 0});
+  Notify("Umgelagert", NotificationType.Success);
+  Set(varVon, Blank()); Set(varNach, Blank())))
 ```
-Leerer Platz: SAP auf `""` setzen.
+Der Lagerbestand bleibt gleich (nur der Platz ändert sich).
+Jeder Stellplatz muss einmal in `tblStellplatz` stehen (1–1000), auch wenn er leer ist.
+
+## Teil 3b: Grafischer Lagerplan (nur lesen)
+- Blatt **PlanLayout**: Stellplatz-Nummern so eintragen, wie das Lager aussieht (ab Zelle B2, max. 40x40). Leere Zelle = Gang. Beispiel mit 2 Reihen ist drin – ersetzen.
+- Blatt **Lagerplan**: zeigt in derselben Zelle `Platz` und darunter die **MN**. Es aktualisiert sich automatisch.
+  - MN = letzte 4 Ziffern der SAP-Nr; beginnen diese mit 0 → letzte 5 (z.B. …0530 → 10530).
+  - Grün = belegt, Grau = leer, `?` = Platz fehlt in tblStellplatz.
+- Lagerplan ist **blattgeschützt** (ohne Passwort). Für Kollegen: Datei mit Link **"Kann anzeigen"** teilen.
 
 ## Teil 4: Etiketten
 `Stellplatz_Etiketten_1-1000.pdf`: 24 pro A4-Seite (3x8), Code128 mit der Platznummer.

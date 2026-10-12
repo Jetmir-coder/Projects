@@ -47,5 +47,43 @@ for i in range(2, 1002):
 for col, w in zip("ABCDEF", (12, 14, 30, 24, 14, 20)):
     ws4.column_dimensions[col].width = w
 
+
+# --- Grafischer Lagerplan ---
+from openpyxl.styles import Alignment, PatternFill, Border, Side
+from openpyxl.formatting.rule import FormulaRule
+from openpyxl.utils import get_column_letter
+
+ROWS, COLS = 40, 40
+lay = wb.create_sheet("PlanLayout")
+lay["A1"] = "Hier die Stellplatz-Nummern so eintragen, wie das Lager wirklich aussieht (ab B2). Leere Zellen = Gang/Wand."
+lay["A1"].font = Font(bold=True)
+# Beispiel: zwei Reihen
+for c in range(20):
+    lay.cell(3, 2 + c, 1 + c)
+    lay.cell(5, 2 + c, 21 + c)
+
+plan = wb.create_sheet("Lagerplan")
+plan["A1"] = "Lagerplan (nur lesen) – Platz / MN"
+plan["A1"].font = Font(bold=True, size=14)
+thin = Side(style="thin", color="999999")
+for r in range(2, 2 + ROWS):
+    plan.row_dimensions[r].height = 30
+    for c in range(2, 2 + COLS):
+        a = f"PlanLayout!{get_column_letter(c)}{r}"
+        sap = f"INDEX(tblStellplatz[SAP],MATCH({a},tblStellplatz[Stellplatz],0))"
+        mn = f'IF(LEFT(RIGHT({sap},4),1)="0",RIGHT({sap},5),RIGHT({sap},4))'
+        f = f'=IF({a}="","",{a}&CHAR(10)&IFERROR(IF({sap}="","leer",{mn}),"?"))'
+        cell = plan.cell(r, c, f)
+        cell.alignment = Alignment(wrap_text=True, horizontal="center", vertical="center")
+        cell.font = Font(size=9)
+for c in range(2, 2 + COLS):
+    plan.column_dimensions[get_column_letter(c)].width = 7
+rng = f"B2:{get_column_letter(1 + COLS)}{1 + ROWS}"
+plan.conditional_formatting.add(rng, FormulaRule(formula=['ISNUMBER(SEARCH("leer",B2))'],
+    fill=PatternFill("solid", fgColor="DDDDDD"), border=Border(thin, thin, thin, thin)))
+plan.conditional_formatting.add(rng, FormulaRule(formula=['AND(B2<>"",NOT(ISNUMBER(SEARCH("leer",B2))))'],
+    fill=PatternFill("solid", fgColor="C6EFCE"), border=Border(thin, thin, thin, thin)))
+plan.protection.sheet = True
+
 wb.save("Lager_Vorlage.xlsx")
 print("ok")
