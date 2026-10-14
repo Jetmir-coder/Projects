@@ -3,7 +3,8 @@
 ## Teil 1: Excel vorbereiten
 1. `Lager_Vorlage.xlsx` öffnen. Blätter: Materialliste, Stellplaetze, Protokoll, Lageruebersicht.
 2. Deine echten Daten in die Tabellen kopieren (Spaltenköpfe NICHT ändern):
-   - **tblMaterial**: SAP, Bezeichnung, Lagerstand, Meldebestand, StkProKarton, StkProPalette
+   - **tblMaterial**: SAP, Bezeichnung, Lagerstand, Meldebestand
+   - **tblVerpackung**: SAP, Bezeichnung, StkProPalette, StkProKarton (feste Werte, druckbar; Karton 0 = kein Karton)
    - **tblStellplatz**: Stellplatz (Zahl), SAP (die Palette dort)
    - **tblProtokoll**: leer lassen (erste Leerzeile später löschen)
 3. SAP-Spalten als **Text** lassen (führende Nullen!).
@@ -14,7 +15,7 @@
 ## Teil 2: App bauen (make.powerapps.com)
 1. **Erstellen → Leere App → Leere Canvas-App → Telefon-Layout**, Name "Lager".
 2. **Daten → Daten hinzufügen → Excel Online (Business)** → Lager.xlsx → die 3 Tabellen
-   (tblMaterial, tblStellplatz, tblProtokoll) anhaken.
+   (tblMaterial, tblVerpackung, tblStellplatz, tblProtokoll) anhaken.
 3. **Einstellungen → Updates → "Datenzeilenlimit" auf 2000** erhöhen.
 4. Controls einfügen (Name in Klammern):
 
@@ -31,7 +32,8 @@
 ```
 Set(varPlatz, Value(scan.Value));
 Set(varLfd, LookUp(tblStellplatz, Stellplatz = varPlatz));
-Set(varMat, LookUp(tblMaterial, SAP = varLfd.SAP))
+Set(varMat, LookUp(tblMaterial, SAP = varLfd.SAP));
+Set(varVp, LookUp(tblVerpackung, SAP = varLfd.SAP))
 ```
 6. `lblInfo.Text`:
 ```
@@ -43,8 +45,8 @@ If(IsBlank(varLfd), "Platz " & varPlatz & " unbekannt",
 8. `btnPlus.OnSelect` (für `btnMinus` Vorzeichen `-1` statt `1`):
 ```
 With({stk: Value(txtAnzahl.Text) * Switch(ddEinheit.Selected.Value,
-              "Palette", varMat.StkProPalette,
-              "Karton",  varMat.StkProKarton, 1) * 1},
+              "Palette", varVp.StkProPalette,
+              "Karton",  varVp.StkProKarton, 1)},
   Patch(tblMaterial, varMat, {Lagerstand: varMat.Lagerstand + stk});
   Patch(tblProtokoll, Defaults(tblProtokoll), {
      Zeit: Now(), Stellplatz: varPlatz, SAP: varMat.SAP, Aktion: "Eingang",

@@ -30,7 +30,9 @@ def fill(ws, tname, rows):
     t = ws.tables[tname]
     t.ref = f"A1:{t.ref.split(':')[1].rstrip('0123456789')}{1 + len(rows)}"
 fill(wb["Materialliste"], "tblMaterial",
-     [[m["sap"], m["bez"], m["stand"], m["melde"], m["stkKarton"], m["stkPalette"]] for m in mats])
+     [[m["sap"], m["bez"], m["stand"], m["melde"]] for m in mats])
+fill(wb["Verpackung"], "tblVerpackung",
+     [[m["sap"], m["bez"], m["stkPalette"], m["stkKarton"]] for m in mats])
 fill(wb["Stellplaetze"], "tblStellplatz", [[p, s] for p, s in plaetze.items()])
 lay = wb["PlanLayout"]
 for r in range(2, 42):

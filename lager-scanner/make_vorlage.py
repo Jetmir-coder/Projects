@@ -18,10 +18,21 @@ def tabelle(ws, name, header, rows=()):
 ws = wb.active
 ws.title = "Materialliste"
 tabelle(ws, "tblMaterial",
-        ["SAP", "Bezeichnung", "Lagerstand", "Meldebestand", "StkProKarton", "StkProPalette"],
-        [["1000001", "Beispielmaterial", 0, 10, 12, 480]])
+        ["SAP", "Bezeichnung", "Lagerstand", "Meldebestand"],
+        [["1000001", "Beispielmaterial", 0, 10]])
 for r in ws.iter_rows(min_row=2, max_col=1):
     r[0].number_format = "@"
+
+wsv = wb.create_sheet("Verpackung")
+tabelle(wsv, "tblVerpackung",
+        ["SAP", "Bezeichnung", "StkProPalette", "StkProKarton"],
+        [["1000001", "Beispielmaterial", 480, 12]])
+for r in wsv.iter_rows(min_row=2, max_col=1):
+    r[0].number_format = "@"
+wsv.print_title_rows = "1:1"
+wsv.page_setup.fitToWidth = 1
+wsv.sheet_properties.pageSetUpPr.fitToPage = True
+wsv.page_setup.fitToHeight = 0
 
 ws2 = wb.create_sheet("Stellplaetze")
 tabelle(ws2, "tblStellplatz", ["Stellplatz", "SAP"], [[1, ""]])
