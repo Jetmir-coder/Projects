@@ -1,0 +1,283 @@
+<title>Lager Probe-App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@400;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<script src="https://unpkg.com/@zxing/library@0.21.3/umd/index.min.js"></script>
+<style>
+/* Layout: phone-first single column, sticky tab bar at the bottom like a handheld scanner */
+:root{
+  --bg:#f3f2ee; --panel:#ffffff; --ink:#1d1f22; --muted:#62666d; --line:#d9d7cf;
+  --signal:#f2c200; --signal-ink:#1d1f22; --ok:#1f7a45; --ok-bg:#dff1e5; --bad:#b3261e; --bad-bg:#fbe3e1; --empty:#e4e2dc;
+  --display:"IBM Plex Sans Condensed",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17181a; --panel:#222427; --ink:#ecebe6; --muted:#a2a5ab; --line:#3a3d42;
+  --signal:#f2c200; --signal-ink:#1d1f22; --ok:#6fd39a; --ok-bg:#1d3a29; --bad:#ff8a80; --bad-bg:#45201d; --empty:#2c2e32; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17181a; --panel:#222427; --ink:#ecebe6; --muted:#a2a5ab; --line:#3a3d42;
+  --signal:#f2c200; --signal-ink:#1d1f22; --ok:#6fd39a; --ok-bg:#1d3a29; --bad:#ff8a80; --bad-bg:#45201d; --empty:#2c2e32; color-scheme:dark}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--display);font-size:16px}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 96px;display:flex;flex-direction:column;gap:14px}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:4px solid var(--signal);padding-bottom:8px}
+h1{font-size:22px;margin:0;letter-spacing:.02em}
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;background:var(--signal);color:var(--signal-ink);padding:3px 6px;border-radius:3px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px;display:flex;flex-direction:column;gap:12px}
+h2{font-size:15px;margin:0;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1 1 auto;min-width:0}
+input,select{font:inherit;font-size:18px;padding:10px;border:1px solid var(--line);border-radius:5px;background:var(--bg);color:var(--ink);width:100%;box-sizing:border-box}
+button{font:inherit;font-weight:700;font-size:17px;padding:12px 14px;border-radius:5px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.scan{background:var(--signal);color:var(--signal-ink);border-color:var(--signal);font-size:19px;width:100%}
+.plus{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.minus{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.card{border-left:6px solid var(--signal);padding:10px 12px;background:var(--bg);border-radius:4px;display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-variant-numeric:tabular-nums}
+.card dt{color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.06em;align-self:center}
+.card dd{margin:0;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.mono{font-family:var(--mono)}
+.big{font-size:28px;font-family:var(--mono)}
+.warn{color:var(--bad);font-weight:700}
+.hint{color:var(--muted);font-size:14px;margin:0}
+.msg{padding:10px 12px;border-radius:5px;font-weight:600}
+.msg.ok{background:var(--ok-bg);color:var(--ok)} .msg.err{background:var(--bad-bg);color:var(--bad)}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--panel);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
+nav button{border:0;border-radius:0;font-size:14px;padding:14px 4px;background:transparent;color:var(--muted)}
+nav button[aria-current="true"]{color:var(--ink);box-shadow:inset 0 4px 0 var(--signal)}
+.plan{overflow-x:auto}
+.grid{display:grid;grid-template-columns:repeat(20,44px);gap:3px}
+.cell{height:40px;border-radius:3px;font-family:var(--mono);font-size:10px;line-height:1.15;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--line)}
+.cell.full{background:var(--ok-bg);color:var(--ok);border-color:var(--ok)}
+.cell.empty{background:var(--empty);color:var(--muted)}
+.cell.low{background:var(--bad-bg);color:var(--bad);border-color:var(--bad)}
+.cell b{font-size:12px}
+.gap{grid-column:1/-1;height:10px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.legend span::before{content:"";display:inline-block;width:12px;height:12px;border-radius:2px;margin-right:4px;vertical-align:-2px;border:1px solid var(--line)}
+.l-full::before{background:var(--ok-bg)} .l-empty::before{background:var(--empty)} .l-low::before{background:var(--bad-bg)}
+table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:6px 4px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:600}
+.tbl{overflow-x:auto}
+@media (prefers-reduced-motion:no-preference){.msg{animation:pop .2s ease-out}@keyframes pop{from{transform:scale(.97)}to{transform:none}}}
+</style>
+
+<div class="wrap">
+  <header><h1>Lager Probe-App</h1><span class="tag">Testdaten</span></header>
+
+  <section id="v-buchen" class="view" style="display:flex;flex-direction:column;gap:14px">
+    <div class="panel">
+      <h2>1 · Stellplatz</h2>
+      <label class="scan" for="foto1" style="text-align:center;padding:14px;border-radius:5px;cursor:pointer;font-weight:700">Etikett scannen (Kamera)</label>
+      <input id="foto1" type="file" accept="image/*" capture="environment" hidden>
+      <div class="row"><input id="platz" inputmode="numeric" placeholder="oder Platz-Nr. tippen, z.B. 124"><button id="go" style="flex:0 0 auto">OK</button></div>
+      <div id="msg1"></div>
+    </div>
+    <div class="panel" id="info" hidden>
+      <h2>2 · Material</h2>
+      <dl class="card" id="card"></dl>
+      <div id="leerbox" hidden class="row"><input id="neuSap" inputmode="numeric" placeholder="SAP-Nr. für diesen Platz"><button id="belegen" style="flex:0 0 auto">Platz belegen</button></div>
+      <div id="buchbox" style="display:flex;flex-direction:column;gap:10px">
+        <h2>3 · Menge</h2>
+        <div class="row"><input id="anzahl" type="number" min="1" value="1" style="flex:1 1 80px"><select id="einheit" style="flex:2 1 140px"></select></div>
+        <p class="hint" id="umrech"></p>
+        <div class="row"><button class="plus" id="btnPlus">+ Eingang</button><button class="minus" id="btnMinus">− Ausgang</button></div>
+        <button id="leeren">Platz leeren (Palette weg)</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-umlagern" class="view" hidden>
+    <div class="panel">
+      <h2>Umlagern</h2>
+      <p class="hint">Palette von einem Platz auf einen anderen. Der Bestand bleibt gleich.</p>
+      <label class="scan" for="fotoVon" style="text-align:center;padding:12px;border-radius:5px;cursor:pointer;font-weight:700">Von-Platz scannen</label>
+      <input id="fotoVon" type="file" accept="image/*" capture="environment" hidden>
+      <input id="von" inputmode="numeric" placeholder="Von (z.B. 124)">
+      <label class="scan" for="fotoNach" style="text-align:center;padding:12px;border-radius:5px;cursor:pointer;font-weight:700">Nach-Platz scannen</label>
+      <input id="fotoNach" type="file" accept="image/*" capture="environment" hidden>
+      <input id="nach" inputmode="numeric" placeholder="Nach (z.B. 70)">
+      <dl class="card" id="umCard"></dl>
+      <button class="scan" id="btnUm">Umlagern</button>
+      <div id="msg2"></div>
+    </div>
+  </section>
+
+  <section id="v-plan" class="view" hidden>
+    <div class="panel">
+      <h2>Lagerplan · nur lesen</h2>
+      <div class="legend"><span class="l-full">belegt</span><span class="l-low">unter Meldebestand</span><span class="l-empty">leer</span></div>
+      <div class="plan"><div class="grid" id="grid"></div></div>
+      <p class="hint">Oben Platz, unten MN (letzte 4 Ziffern, mit 0 am Anfang die letzten 5). Tippen auf einen Platz öffnet ihn.</p>
+    </div>
+  </section>
+
+  <section id="v-prot" class="view" hidden>
+    <div class="panel">
+      <h2>Protokoll</h2>
+      <div class="tbl"><table><thead><tr><th>Zeit</th><th>Platz</th><th>SAP</th><th>Aktion</th><th>Stk</th><th>Bestand</th></tr></thead><tbody id="prot"></tbody></table></div>
+      <button id="reset">Testdaten zurücksetzen</button>
+      <div id="resetConfirm" hidden class="row"><span>Wirklich alles zurücksetzen?</span><button class="minus" id="resetYes">Ja</button><button id="resetNo">Nein</button></div>
+    </div>
+  </section>
+</div>
+
+<nav>
+  <button data-v="buchen" aria-current="true">Buchen</button>
+  <button data-v="umlagern">Umlagern</button>
+  <button data-v="plan">Lagerplan</button>
+  <button data-v="prot">Protokoll</button>
+</nav>
+
+<script>
+const SEED = {"mats":[{"sap":"40290012","bez":"Schraube M8x40 Typ A","stand":480,"melde":480,"stkKarton":24,"stkPalette":480},{"sap":"40229779","bez":"Mutter M8 Typ A","stand":480,"melde":240,"stkKarton":12,"stkPalette":240},{"sap":"40211614","bez":"Unterlegscheibe 8,4 Typ A","stand":1440,"melde":1440,"stkKarton":24,"stkPalette":1440},{"sap":"40214943","bez":"Kabelbinder 200mm Typ A","stand":3000,"melde":3000,"stkKarton":50,"stkPalette":3000},{"sap":"40383028","bez":"Folie 500mm Typ A","stand":8000,"melde":2000,"stkKarton":100,"stkPalette":2000},{"sap":"40381812","bez":"Karton 600x400 Typ A","stand":90,"melde":30,"stkKarton":0,"stkPalette":30},{"sap":"40287867","bez":"Klebeband braun Typ A","stand":3000,"melde":1000,"stkKarton":50,"stkPalette":1000},{"sap":"40970777","bez":"Etikett 100x50 Typ A","stand":240,"melde":120,"stkKarton":6,"stkPalette":120},{"sap":"40227101","bez":"Dichtung DN50 Typ A","stand":1000,"melde":1000,"stkKarton":50,"stkPalette":1000},{"sap":"40734374","bez":"Rohr 1/2 Zoll Typ A","stand":18000,"melde":6000,"stkKarton":100,"stkPalette":6000},{"sap":"40848628","bez":"Winkel 90 Grad Typ A","stand":2880,"melde":960,"stkKarton":24,"stkPalette":960},{"sap":"40335070","bez":"Scharnier 60mm Typ A","stand":3000,"melde":3000,"stkKarton":100,"stkPalette":3000},{"sap":"40775919","bez":"Griff Edelstahl Typ A","stand":3840,"melde":960,"stkKarton":24,"stkPalette":960},{"sap":"40875717","bez":"Kleber 2K Typ A","stand":80,"melde":20,"stkKarton":0,"stkPalette":20},{"sap":"40530530","bez":"Palettenfolie Typ A","stand":1440,"melde":360,"stkKarton":6,"stkPalette":360},{"sap":"40951642","bez":"Steckdose 3-fach Typ A","stand":120,"melde":40,"stkKarton":0,"stkPalette":40},{"sap":"40866737","bez":"Kabel 3x1,5 Typ A","stand":1440,"melde":1440,"stkKarton":24,"stkPalette":1440},{"sap":"40442533","bez":"Schlauch 10mm Typ A","stand":480,"melde":480,"stkKarton":24,"stkPalette":480},{"sap":"40926072","bez":"Filter G4 Typ A","stand":9000,"melde":3000,"stkKarton":50,"stkPalette":3000},{"sap":"40957320","bez":"Lager 6204 Typ A","stand":960,"melde":240,"stkKarton":12,"stkPalette":240},{"sap":"40316823","bez":"Schraube M8x40 Typ B","stand":4000,"melde":1000,"stkKarton":50,"stkPalette":1000},{"sap":"40370530","bez":"Mutter M8 Typ B","stand":720,"melde":360,"stkKarton":12,"stkPalette":360},{"sap":"40607519","bez":"Unterlegscheibe 8,4 Typ B","stand":960,"melde":480,"stkKarton":24,"stkPalette":480},{"sap":"40618359","bez":"Kabelbinder 200mm Typ B","stand":4000,"melde":2000,"stkKarton":50,"stkPalette":2000},{"sap":"40808053","bez":"Folie 500mm Typ B","stand":2160,"melde":720,"stkKarton":12,"stkPalette":720},{"sap":"40397233","bez":"Karton 600x400 Typ B","stand":240,"melde":120,"stkKarton":6,"stkPalette":120},{"sap":"40393478","bez":"Klebeband braun Typ B","stand":3000,"melde":3000,"stkKarton":100,"stkPalette":3000},{"sap":"40858945","bez":"Etikett 100x50 Typ B","stand":720,"melde":240,"stkKarton":6,"stkPalette":240},{"sap":"40280530","bez":"Dichtung DN50 Typ B","stand":2880,"melde":960,"stkKarton":24,"stkPalette":960},{"sap":"40983056","bez":"Rohr 1/2 Zoll Typ B","stand":4000,"melde":1000,"stkKarton":50,"stkPalette":1000},{"sap":"40607428","bez":"Winkel 90 Grad Typ B","stand":1440,"melde":1440,"stkKarton":24,"stkPalette":1440},{"sap":"40918889","bez":"Scharnier 60mm Typ B","stand":960,"melde":480,"stkKarton":24,"stkPalette":480},{"sap":"40362103","bez":"Griff Edelstahl Typ B","stand":720,"melde":720,"stkKarton":24,"stkPalette":720},{"sap":"40866571","bez":"Kleber 2K Typ B","stand":20,"melde":20,"stkKarton":0,"stkPalette":20},{"sap":"40783478","bez":"Palettenfolie Typ B","stand":40,"melde":40,"stkKarton":0,"stkPalette":40},{"sap":"40360530","bez":"Steckdose 3-fach Typ B","stand":6000,"melde":3000,"stkKarton":50,"stkPalette":3000},{"sap":"40545132","bez":"Kabel 3x1,5 Typ B","stand":8000,"melde":2000,"stkKarton":50,"stkPalette":2000},{"sap":"40243012","bez":"Schlauch 10mm Typ B","stand":5760,"melde":1440,"stkKarton":24,"stkPalette":1440},{"sap":"40498927","bez":"Filter G4 Typ B","stand":30,"melde":30,"stkKarton":0,"stkPalette":30},{"sap":"40436613","bez":"Lager 6204 Typ B","stand":720,"melde":720,"stkKarton":24,"stkPalette":720},{"sap":"40774362","bez":"Schraube M8x40 Typ C","stand":360,"melde":360,"stkKarton":12,"stkPalette":360},{"sap":"40489652","bez":"Mutter M8 Typ C","stand":6000,"melde":2000,"stkKarton":100,"stkPalette":2000},{"sap":"40560777","bez":"Unterlegscheibe 8,4 Typ C","stand":480,"melde":240,"stkKarton":6,"stkPalette":240},{"sap":"40799725","bez":"Kabelbinder 200mm Typ C","stand":4000,"melde":2000,"stkKarton":50,"stkPalette":2000},{"sap":"40404197","bez":"Folie 500mm Typ C","stand":1440,"melde":720,"stkKarton":24,"stkPalette":720},{"sap":"40739480","bez":"Karton 600x400 Typ C","stand":240,"melde":240,"stkKarton":12,"stkPalette":240},{"sap":"40705577","bez":"Klebeband braun Typ C","stand":1080,"melde":360,"stkKarton":12,"stkPalette":360},{"sap":"40548327","bez":"Etikett 100x50 Typ C","stand":480,"melde":240,"stkKarton":12,"stkPalette":240},{"sap":"40392673","bez":"Dichtung DN50 Typ C","stand":2160,"melde":720,"stkKarton":24,"stkPalette":720},{"sap":"40710530","bez":"Rohr 1/2 Zoll Typ C","stand":4000,"melde":1000,"stkKarton":50,"stkPalette":1000}],"plaetze":{"1":"","2":"","3":"","4":"40498927","5":"40560777","6":"40362103","7":"","8":"40775919","9":"","10":"","11":"","12":"","13":"","14":"","15":"","16":"40393478","17":"","18":"","19":"","20":"","21":"","22":"40734374","23":"40866571","24":"","25":"","26":"","27":"40362103","28":"","29":"","30":"","31":"40734374","32":"","33":"40951642","34":"40436613","35":"","36":"40404197","37":"","38":"40362103","39":"40442533","40":"40383028","41":"40360530","42":"","43":"","44":"40214943","45":"","46":"40360530","47":"40970777","48":"","49":"","50":"40280530","51":"","52":"40705577","53":"","54":"","55":"40362103","56":"","57":"","58":"","59":"","60":"","61":"","62":"40866571","63":"","64":"","65":"40607428","66":"","67":"40360530","68":"","69":"","70":"","71":"","72":"","73":"","74":"","75":"40951642","76":"","77":"","78":"","79":"","80":"","81":"","82":"","83":"","84":"40866737","85":"","86":"40799725","87":"","88":"","89":"40290012","90":"40392673","91":"40970777","92":"","93":"","94":"","95":"","96":"","97":"","98":"","99":"","100":"40607428","101":"","102":"40360530","103":"40710530","104":"","105":"","106":"","107":"","108":"40280530","109":"","110":"","111":"","112":"40214943","113":"40957320","114":"","115":"","116":"","117":"","118":"40397233","119":"40607428","120":"40710530","121":"","122":"40229779","123":"40970777","124":"","125":"","126":"","127":"","128":"","129":"40404197","130":"","131":"40875717","132":"","133":"40280530","134":"","135":"40775919","136":"","137":"40951642","138":"","139":"","140":"40775919","141":"40280530","142":"","143":"","144":"","145":"40560777","146":"40316823","147":"","148":"","149":"","150":"","151":"40383028","152":"40211614","153":"40360530","154":"","155":"","156":"40362103","157":"40280530","158":"","159":"","160":"40383028","161":"","162":"","163":"40316823","164":"40227101","165":"40710530","166":"40316823","167":"","168":"40498927","169":"","170":"40335070","171":"","172":"","173":"","174":"","175":"","176":"40858945","177":"40783478","178":"","179":"","180":"","181":"","182":"","183":"40436613","184":"","185":"40866571","186":"","187":"","188":"","189":"40442533","190":"","191":"","192":"","193":"","194":"","195":"","196":"","197":"40287867","198":"","199":"","200":"40287867"}};
+const KEY = "lager-probe-v1";
+let S;
+function fresh(){ return {mats:JSON.parse(JSON.stringify(SEED.mats)), plaetze:{...SEED.plaetze}, prot:[]}; }
+try { S = JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch(e){ S = fresh(); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+const $ = id => document.getElementById(id);
+const mat = sap => S.mats.find(m => m.sap === sap);
+const mn = sap => { const r4 = sap.slice(-4); return r4[0] === "0" ? sap.slice(-5) : r4; };
+const fmt = n => n.toLocaleString("de-AT");
+function log(platz, sap, aktion, stk, bestand){
+  const t = new Date();
+  S.prot.unshift({zeit: t.toLocaleDateString("de-AT")+" "+t.toLocaleTimeString("de-AT",{hour:"2-digit",minute:"2-digit"}), platz, sap, aktion, stk, bestand});
+  save(); renderProt();
+}
+function msg(el, text, ok){ el.innerHTML = ""; const d = document.createElement("div"); d.className = "msg " + (ok ? "ok" : "err"); d.textContent = text; el.appendChild(d); }
+
+// --- Barcode aus Foto lesen ---
+async function readBarcode(file){
+  const bmp = await createImageBitmap(file);
+  if ("BarcodeDetector" in window){
+    try{
+      const det = new BarcodeDetector({formats:["code_128","qr_code","ean_13","code_39"]});
+      const r = await det.detect(bmp);
+      if (r.length) return r[0].rawValue;
+    }catch(e){}
+  }
+  if (window.ZXing){
+    const url = URL.createObjectURL(file);
+    try{ const r = await new ZXing.BrowserMultiFormatReader().decodeFromImageUrl(url); return r.getText(); }
+    catch(e){} finally{ URL.revokeObjectURL(url); }
+  }
+  return null;
+}
+function hookScan(inputId, onValue, msgEl){
+  $(inputId).addEventListener("change", async e => {
+    const f = e.target.files[0]; e.target.value = "";
+    if (!f) return;
+    msg(msgEl, "Lese Barcode …", true);
+    const v = await readBarcode(f);
+    if (v) { msgEl.innerHTML = ""; onValue(v.trim()); }
+    else msg(msgEl, "Kein Barcode erkannt. Näher ran, gerade halten, gutes Licht – oder Nummer tippen.", false);
+  });
+}
+
+// --- Buchen ---
+let cur = null;
+function openPlatz(p){
+  p = parseInt(p, 10);
+  if (!(p in S.plaetze)) { $("info").hidden = true; msg($("msg1"), "Platz " + (isNaN(p) ? "?" : p) + " gibt es nicht (Test: 1–200).", false); return; }
+  cur = p; $("platz").value = p; $("msg1").innerHTML = ""; $("info").hidden = false; renderInfo();
+}
+function renderInfo(){
+  const sap = S.plaetze[cur], m = sap && mat(sap);
+  const c = $("card"); c.innerHTML = "";
+  const add = (k, v, cls) => { const dt = document.createElement("dt"); dt.textContent = k; const dd = document.createElement("dd"); dd.textContent = v; if (cls) dd.className = cls; c.append(dt, dd); };
+  add("Platz", cur, "big");
+  if (!m){ add("Status", sap ? "SAP " + sap + " unbekannt" : "leer"); $("leerbox").hidden = false; $("buchbox").hidden = true; return; }
+  $("leerbox").hidden = true; $("buchbox").hidden = false;
+  add("SAP", m.sap, "mono"); add("MN", mn(m.sap), "mono"); add("Material", m.bez);
+  add("Bestand", fmt(m.stand) + " Stk", m.stand < m.melde ? "warn" : "");
+  add("Melde", fmt(m.melde) + " Stk");
+  const sel = $("einheit"), old = sel.value; sel.innerHTML = "";
+  [["Palette", m.stkPalette], ["Karton", m.stkKarton], ["Stück", 1]].forEach(([n, f]) => { if (f) { const o = document.createElement("option"); o.value = n; o.textContent = n + (n === "Stück" ? "" : " (" + fmt(f) + " Stk)"); sel.appendChild(o); } });
+  if ([...sel.options].some(o => o.value === old)) sel.value = old;
+  updUmrech();
+}
+function stkOf(m){ const n = Math.max(0, parseInt($("anzahl").value, 10) || 0); const e = $("einheit").value; return n * (e === "Palette" ? m.stkPalette : e === "Karton" ? m.stkKarton : 1); }
+function updUmrech(){ const m = mat(S.plaetze[cur] || ""); if (m) $("umrech").textContent = "= " + fmt(stkOf(m)) + " Stück"; }
+$("anzahl").addEventListener("input", updUmrech); $("einheit").addEventListener("change", updUmrech);
+function buchen(sign){
+  const m = mat(S.plaetze[cur]); const stk = stkOf(m);
+  if (!stk) return msg($("msg1"), "Anzahl eingeben.", false);
+  if (sign < 0 && m.stand - stk < 0) return msg($("msg1"), "Zu wenig Bestand: nur " + fmt(m.stand) + " Stk da.", false);
+  m.stand += sign * stk;
+  log(cur, m.sap, sign > 0 ? "Eingang " + $("anzahl").value + " " + $("einheit").value : "Ausgang " + $("anzahl").value + " " + $("einheit").value, sign * stk, m.stand);
+  renderInfo(); renderPlan();
+  msg($("msg1"), "Gebucht: " + (sign > 0 ? "+" : "−") + fmt(stk) + " Stk. Neuer Bestand " + fmt(m.stand) + ".", true);
+}
+$("btnPlus").onclick = () => buchen(1); $("btnMinus").onclick = () => buchen(-1);
+$("go").onclick = () => openPlatz($("platz").value);
+$("platz").addEventListener("keydown", e => { if (e.key === "Enter") openPlatz($("platz").value); });
+$("belegen").onclick = () => {
+  const sap = $("neuSap").value.trim();
+  if (!mat(sap)) return msg($("msg1"), "SAP " + sap + " steht nicht in der Materialliste.", false);
+  S.plaetze[cur] = sap; log(cur, sap, "Platz belegt", 0, mat(sap).stand); $("neuSap").value = "";
+  renderInfo(); renderPlan(); msg($("msg1"), "Platz " + cur + " belegt mit " + sap + ".", true);
+};
+$("leeren").onclick = () => { const sap = S.plaetze[cur]; S.plaetze[cur] = ""; log(cur, sap, "Platz geleert", 0, mat(sap).stand); renderInfo(); renderPlan(); msg($("msg1"), "Platz " + cur + " ist jetzt leer.", true); };
+hookScan("foto1", openPlatz, $("msg1"));
+
+// --- Umlagern ---
+function renderUm(){
+  const c = $("umCard"); c.innerHTML = "";
+  const v = parseInt($("von").value, 10), n = parseInt($("nach").value, 10);
+  const line = (k, p) => { const dt = document.createElement("dt"); dt.textContent = k; const dd = document.createElement("dd");
+    dd.textContent = isNaN(p) ? "–" : !(p in S.plaetze) ? p + ": gibt es nicht" : p + ": " + (S.plaetze[p] ? mn(S.plaetze[p]) + " · " + (mat(S.plaetze[p])?.bez || "?") : "leer"); c.append(dt, dd); };
+  line("Von", v); line("Nach", n);
+}
+$("von").addEventListener("input", renderUm); $("nach").addEventListener("input", renderUm);
+hookScan("fotoVon", v => { $("von").value = v; renderUm(); }, $("msg2"));
+hookScan("fotoNach", v => { $("nach").value = v; renderUm(); }, $("msg2"));
+$("btnUm").onclick = () => {
+  const v = parseInt($("von").value, 10), n = parseInt($("nach").value, 10);
+  if (!(v in S.plaetze) || !(n in S.plaetze)) return msg($("msg2"), "Beide Plätze müssen existieren (1–200).", false);
+  if (v === n) return msg($("msg2"), "Von und Nach sind gleich.", false);
+  if (!S.plaetze[v]) return msg($("msg2"), "Platz " + v + " ist leer – nichts zum Umlagern.", false);
+  if (S.plaetze[n]) return msg($("msg2"), "Platz " + n + " ist belegt (" + mn(S.plaetze[n]) + "). Erst leeren oder anderen Platz wählen.", false);
+  const sap = S.plaetze[v]; S.plaetze[n] = sap; S.plaetze[v] = "";
+  log(n, sap, "Umlagerung " + v + " → " + n, 0, mat(sap)?.stand ?? 0);
+  renderUm(); renderPlan(); msg($("msg2"), "Umgelagert: " + mn(sap) + " von " + v + " nach " + n + ".", true);
+};
+
+// --- Lagerplan (10 Reihen × 20, Gang nach jeder 2. Reihe) ---
+function renderPlan(){
+  const g = $("grid"); g.innerHTML = "";
+  for (let r = 0; r < 10; r++){
+    for (let c = 1; c <= 20; c++){
+      const p = r * 20 + c, sap = S.plaetze[p], m = sap && mat(sap);
+      const d = document.createElement("button"); d.type = "button";
+      d.className = "cell " + (!sap ? "empty" : m && m.stand < m.melde ? "low" : "full");
+      const b = document.createElement("b"); b.textContent = p; d.appendChild(b);
+      d.appendChild(document.createTextNode(sap ? mn(sap) : "leer"));
+      d.title = sap ? sap + " " + (m?.bez || "") : "leer";
+      d.onclick = () => { show("buchen"); openPlatz(p); };
+      g.appendChild(d);
+    }
+    if (r % 2 === 1 && r < 9){ const gap = document.createElement("div"); gap.className = "gap"; g.appendChild(gap); }
+  }
+}
+function renderProt(){
+  const tb = $("prot"); tb.innerHTML = "";
+  if (!S.prot.length){ const tr = document.createElement("tr"); const td = document.createElement("td"); td.colSpan = 6; td.textContent = "Noch keine Buchungen. Scanne einen Platz unter „Buchen“."; td.className = "hint"; tr.appendChild(td); tb.appendChild(tr); return; }
+  S.prot.slice(0, 200).forEach(x => { const tr = document.createElement("tr");
+    [x.zeit, x.platz, x.sap ? mn(x.sap) : "", x.aktion, x.stk ? (x.stk > 0 ? "+" : "") + fmt(x.stk) : "", fmt(x.bestand)].forEach(v => { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); });
+    tb.appendChild(tr); });
+}
+$("reset").onclick = () => { $("resetConfirm").hidden = false; };
+$("resetNo").onclick = () => { $("resetConfirm").hidden = true; };
+$("resetYes").onclick = () => { S = fresh(); save(); $("resetConfirm").hidden = true; renderAll(); $("info").hidden = true; };
+
+// --- Navigation ---
+function show(v){
+  document.querySelectorAll(".view").forEach(s => { s.hidden = s.id !== "v-" + v; if (!s.hidden) s.style.display = "flex"; });
+  document.querySelectorAll("nav button").forEach(b => b.setAttribute("aria-current", b.dataset.v === v));
+}
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => show(b.dataset.v));
+function renderAll(){ renderPlan(); renderProt(); renderUm(); }
+renderAll();
+// Startzustand: ein belegter Beispielplatz ist offen
+openPlatz(Object.keys(S.plaetze).find(p => S.plaetze[p]));
+</script>
